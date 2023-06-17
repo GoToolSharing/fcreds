@@ -44,6 +44,7 @@ var unlinkCmd = &cobra.Command{
 
 		template := "alias " + command + "='fzf-creds smart " + command + "'"
 		utils.RemoveLineFromFile(Config.Aliases_file_path, template)
+		fmt.Println("Remember to use the following command or open a new terminal : unalias", command)
 	},
 }
 

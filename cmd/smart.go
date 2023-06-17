@@ -22,9 +22,9 @@ var smartCmd = &cobra.Command{
 			Config.Variables_prefix + "PASSWORD": crackmapexec.GetPasswords,
 			Config.Variables_prefix + "TARGET":   crackmapexec.GetTargets,
 		}
-		templated_command := ""
+		templated_command := strings.Join(args[1:], "")
+		templated_command = args[0] + " " + templated_command
 		for _, variable := range Config.Variables_custom_list {
-			templated_command = strings.Join(args[0:], "")
 			if strings.Contains(Config.Variables_prefix+templated_command, variable) {
 				mapping[Config.Variables_prefix+variable]()
 			}
