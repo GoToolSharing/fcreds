@@ -16,12 +16,15 @@ var rootCmd = &cobra.Command{
 	Long: `Interactive execution of bash commands`,
 }
 
+var Config utils.Config
+
 func Execute() {
 	if runtime.GOOS == "windows" {
 		fmt.Println("Can't execute this tool on a Windows machine")
 		return
 	}
 	config, err := utils.LoadConfig(".")
+	Config = config
 	if err != nil {
 		log.Fatal("cannot load config :", err)
 	}

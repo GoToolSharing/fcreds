@@ -42,12 +42,8 @@ var unlinkCmd = &cobra.Command{
 
 		fmt.Println("The " + command + " tool has been successfully unlinked from fzf-creds")
 
-		config, err := utils.LoadConfig(".")
-		if err != nil {
-			log.Fatal("cannot load config :", err)
-		}
 		template := "alias " + command + "='fzf-creds smart " + command + "'"
-		utils.RemoveLineFromFile(config.Aliases_file_path, template)
+		utils.RemoveLineFromFile(Config.Aliases_file_path, template)
 	},
 }
 

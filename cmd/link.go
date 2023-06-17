@@ -45,14 +45,10 @@ var linkCmd = &cobra.Command{
 		if result.Error != nil {
 			log.Fatal(result.Error)
 		}
-		config, err := utils.LoadConfig(".")
-		if err != nil {
-			log.Fatal("cannot load config :", err)
-		}
-		utils.AppendToFile(config.Aliases_file_path, command)
+		utils.AppendToFile(Config.Aliases_file_path, command)
 
 		fmt.Println("The tool has been successfully linked to fzf-creds")
-		fmt.Println("Don't forget to source the aliases file -> source " + config.Aliases_file_path)
+		fmt.Println("Don't forget to source the aliases file -> source " + Config.Aliases_file_path)
 	},
 }
 
