@@ -7,7 +7,7 @@ type Config struct {
 	Cme_db_path           string   `mapstructure:"CME_DB_PATH"`
 	Variables_prefix      string   `mapstructure:"VARIABLES_PREFIX"`
 	Variables_custom_list []string `mapstructure:"VARIABLES_CUSTOM_LIST"`
-	Exegol_aliases_path   string   `mapstructure:"EXEGOL_ALIASES_PATH"`
+	Aliases_file_path     string   `mapstructure:"ALIASES_FILE_PATH"`
 	Local_database_name   string   `mapstructure:"LOCAL_DATABASE_NAME"`
 }
 
