@@ -70,10 +70,22 @@ func getDataFromDatabases(search string, cmeInterface CrackmapexecInterface) []s
 	return dataList
 }
 
+func getHeader() string {
+	computedData.Domain = strings.ReplaceAll(computedData.Domain, "\n", "")
+	computedData.Username = strings.ReplaceAll(computedData.Username, "\n", "")
+	computedData.Password = strings.ReplaceAll(computedData.Password, "\n", "")
+	computedData.Target = strings.ReplaceAll(computedData.Target, "\n", "")
+
+	template := "Domain : '" + computedData.Domain + "' - Username : '" + computedData.Username + "' - Password : '" + computedData.Password + "' - Target : '" + computedData.Target + "'"
+	return template
+}
+
 func askToFZF(dataList []string, message string) string {
 	fzf_format := strings.Join(dataList, "\n")
-
-	cmd := exec.Command("fzf", "--prompt", message+" > ")
+	if len(dataList) == 1 {
+		return dataList[0]
+	}
+	cmd := exec.Command("fzf", "--prompt", message+" > ", "--header", getHeader())
 
 	cmd.Stdin = os.Stdin
 	cmd.Stderr = os.Stderr
