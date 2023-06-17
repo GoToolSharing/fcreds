@@ -14,14 +14,25 @@ import (
 	"gorm.io/gorm/logger"
 )
 
-type User struct {
-	ID     int
-	Name   string
-	Domain string
+type CrackmapexecInterface interface {
 }
 
-func GetDomains() string {
-	fmt.Println("Crackmapexec -> getDomains()")
+type Users struct {
+}
+
+type Computers struct {
+}
+
+var computedData ComputedData
+
+type ComputedData struct {
+	Domain   string
+	Username string
+	Password string
+	Target   string
+}
+
+func getDataFromDatabases(search string, cmeInterface CrackmapexecInterface) []string {
 	config, err := utils.LoadConfig(".")
 	if err != nil {
 		log.Fatal("Cannot load config :", err)
@@ -32,9 +43,9 @@ func GetDomains() string {
 	}
 	if dbFiles == nil {
 		fmt.Println("There is no data for crackmapexec")
-		return ""
+		return nil
 	}
-	var domainsList []string
+	var dataList []string
 
 	for _, dbFile := range dbFiles {
 		db, err := gorm.Open(sqlite.Open(dbFile), &gorm.Config{})
@@ -44,8 +55,8 @@ func GetDomains() string {
 			continue
 		}
 
-		var domains []string
-		result := db.Model(&User{}).Select("DISTINCT domain").Find(&domains)
+		var data []string
+		result := db.Model(cmeInterface).Select("DISTINCT " + search).Find(&data)
 		if result.Error != nil {
 			continue
 		}
@@ -53,13 +64,16 @@ func GetDomains() string {
 		if result.RowsAffected == 0 {
 			continue
 		}
-		domainsList = append(domainsList, domains...)
+		dataList = append(dataList, data...)
 	}
-	fmt.Println("Domains List : ", domainsList)
 
-	fzf_format := strings.Join(domainsList, "\n")
+	return dataList
+}
 
-	cmd := exec.Command("fzf", "--prompt", "Domain > ")
+func askToFZF(dataList []string, message string) string {
+	fzf_format := strings.Join(dataList, "\n")
+
+	cmd := exec.Command("fzf", "--prompt", message+" > ")
 
 	cmd.Stdin = os.Stdin
 	cmd.Stderr = os.Stderr
@@ -73,17 +87,34 @@ func GetDomains() string {
 	return string(output)
 }
 
-func GetUsernames() string {
-	fmt.Println("Crackmapexec -> getUsernames()")
-	return ""
+func GetData() ComputedData {
+	return computedData
 }
 
-func GetPasswords() string {
-	fmt.Println("Crackmapexec -> getPasswords()")
-	return ""
+func GetDomains() {
+	users := &Users{}
+	domainsList := getDataFromDatabases("domain", users)
+	domain_selection := askToFZF(domainsList, "Domain")
+	computedData.Domain = domain_selection
 }
 
-func GetTargets() string {
-	fmt.Println("Crackmapexec -> getTargets()")
-	return ""
+func GetUsernames() {
+	usernames := &Users{}
+	usernamesList := getDataFromDatabases("username", usernames)
+	username_selection := askToFZF(usernamesList, "Usernames")
+	computedData.Username = username_selection
+}
+
+func GetPasswords() {
+	passwords := &Users{}
+	passwordsList := getDataFromDatabases("password", passwords)
+	password_selection := askToFZF(passwordsList, "Passwords")
+	computedData.Password = password_selection
+}
+
+func GetTargets() {
+	targets := &Computers{}
+	targetsList := getDataFromDatabases("ip", targets)
+	target_selection := askToFZF(targetsList, "Targets")
+	computedData.Target = target_selection
 }
