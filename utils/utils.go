@@ -8,6 +8,7 @@ type Config struct {
 	Variables_prefix      string   `mapstructure:"VARIABLES_PREFIX"`
 	Variables_custom_list []string `mapstructure:"VARIABLES_CUSTOM_LIST"`
 	Exegol_aliases_path   string   `mapstructure:"EXEGOL_ALIASES_PATH"`
+	Local_database_name   string   `mapstructure:"LOCAL_DATABASE_NAME"`
 }
 
 func LoadConfig(path string) (config Config, err error) {
