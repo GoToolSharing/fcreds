@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 	"log"
-	"os/exec"
 
 	"github.com/QU35T-code/fzf-creds/database"
 	"github.com/QU35T-code/fzf-creds/models"
@@ -11,10 +10,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var linkCmd = &cobra.Command{
-	Use:   "link",
-	Short: "Link a tool with fzf-creds",
-	Long:  `Link a tool in the fzf-creds database so that it can be used`,
+var unlinkCmd = &cobra.Command{
+	Use:   "unlink",
+	Short: "Unlink a tool of fzf-creds",
+	Long:  `Remove a linked tool from the local fzf-creds database and remove its alias`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) != 1 {
 			fmt.Println("Bad number of arguments, got : ", len(args), ", expected : 1")
@@ -22,11 +21,6 @@ var linkCmd = &cobra.Command{
 			return
 		}
 		command := args[0]
-		_, err := exec.LookPath(command)
-		if err != nil {
-			fmt.Printf("%s", err)
-			return
-		}
 		var tools models.Tools
 		result := database.DB.First(&tools, "name = ?", command)
 		if result.Error != nil {
@@ -35,27 +29,28 @@ var linkCmd = &cobra.Command{
 			}
 		}
 
-		if result.RowsAffected != 0 {
-			fmt.Println("The tool is already linked to fzf-creds")
-			// TODO: check the aliases anyway to add it if it is not there
+		if result.RowsAffected == 0 {
+			fmt.Println("The tool is not linked with fzf-creds (not in the database)")
+			// TODO: check anyway the aliases for the delete
 			return
 		}
 
-		result = database.DB.Create(&models.Tools{Name: command})
+		result = database.DB.Delete(&tools, "name = ?", command)
 		if result.Error != nil {
 			log.Fatal(result.Error)
 		}
+
+		fmt.Println("The " + command + " tool has been successfully unlinked from fzf-creds")
+
 		config, err := utils.LoadConfig(".")
 		if err != nil {
 			log.Fatal("cannot load config :", err)
 		}
-		utils.AppendToFile(config.Aliases_file_path, command)
-
-		fmt.Println("The tool has been successfully linked to fzf-creds")
-		fmt.Println("Don't forget to source the aliases file -> source " + config.Aliases_file_path)
+		template := "alias " + command + "='fzf-creds smart " + command + "'"
+		utils.RemoveLineFromFile(config.Aliases_file_path, template)
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(linkCmd)
+	rootCmd.AddCommand(unlinkCmd)
 }
