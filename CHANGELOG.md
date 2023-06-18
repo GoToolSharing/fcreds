@@ -33,3 +33,11 @@ New commands and the first bug fixes.
 - Removal of the `viper` module and `environment variables`.
 - Added more control over arguments passed to commands.
 - Separation of the alias file from the default one.
+
+## [1.1.1](https://github.com/QU35T-code/fzf-creds/releases/tag/1.1.1) (18/06/2023)
+
+#### Summary
+Fix for not blocking commands due to flags.
+
+## Changes
+- Flags are `ignored` for the `smart` command, preventing a conflict between tools and fzf-creds flags

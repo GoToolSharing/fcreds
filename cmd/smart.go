@@ -24,7 +24,7 @@ var smartCmd = &cobra.Command{
 			config.Prefix + "PASSWORD": crackmapexec.GetPasswords,
 			config.Prefix + "TARGET":   crackmapexec.GetTargets,
 		}
-		templated_command := strings.Join(args[1:], "")
+		templated_command := strings.Join(args[1:], " ")
 		templated_command = args[0] + " " + templated_command
 		for _, variable := range config.Variables_custom_list {
 			if strings.Contains(config.Prefix+templated_command, variable) {
@@ -56,4 +56,5 @@ var smartCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(smartCmd)
+	smartCmd.Flags().SetInterspersed(false)
 }
