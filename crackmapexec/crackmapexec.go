@@ -1,14 +1,13 @@
 package crackmapexec
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
 
-	"github.com/QU35T-code/fzf-creds/utils"
+	"github.com/QU35T-code/fzf-creds/config"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -33,16 +32,11 @@ type ComputedData struct {
 }
 
 func getDataFromDatabases(search string, cmeInterface CrackmapexecInterface) []string {
-	config, err := utils.LoadConfig(".")
-	if err != nil {
-		log.Fatal("Cannot load config :", err)
-	}
 	dbFiles, err := filepath.Glob(filepath.Join(config.Cme_db_path, "*.db"))
 	if err != nil {
 		log.Fatal(err)
 	}
 	if dbFiles == nil {
-		fmt.Println("There is no data for crackmapexec")
 		return nil
 	}
 	var dataList []string
@@ -106,6 +100,9 @@ func GetData() ComputedData {
 func GetDomains() {
 	users := &Users{}
 	domainsList := getDataFromDatabases("domain", users)
+	if domainsList == nil {
+		return
+	}
 	domain_selection := askToFZF(domainsList, "Domain")
 	computedData.Domain = domain_selection
 }
@@ -113,6 +110,9 @@ func GetDomains() {
 func GetUsernames() {
 	usernames := &Users{}
 	usernamesList := getDataFromDatabases("username", usernames)
+	if usernamesList == nil {
+		return
+	}
 	username_selection := askToFZF(usernamesList, "Usernames")
 	computedData.Username = username_selection
 }
@@ -120,6 +120,9 @@ func GetUsernames() {
 func GetPasswords() {
 	passwords := &Users{}
 	passwordsList := getDataFromDatabases("password", passwords)
+	if passwordsList == nil {
+		return
+	}
 	password_selection := askToFZF(passwordsList, "Passwords")
 	computedData.Password = password_selection
 }
@@ -127,6 +130,9 @@ func GetPasswords() {
 func GetTargets() {
 	targets := &Computers{}
 	targetsList := getDataFromDatabases("ip", targets)
+	if targetsList == nil {
+		return
+	}
 	target_selection := askToFZF(targetsList, "Targets")
 	computedData.Target = target_selection
 }

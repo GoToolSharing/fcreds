@@ -3,7 +3,9 @@ package cmd
 import (
 	"fmt"
 	"log"
+	"os/exec"
 
+	"github.com/QU35T-code/fzf-creds/config"
 	"github.com/QU35T-code/fzf-creds/database"
 	"github.com/QU35T-code/fzf-creds/models"
 	"github.com/QU35T-code/fzf-creds/utils"
@@ -11,40 +13,39 @@ import (
 )
 
 var unlinkCmd = &cobra.Command{
-	Use:   "unlink",
-	Short: "Unlink a tool of fzf-creds",
-	Long:  `Remove a linked tool from the local fzf-creds database and remove its alias`,
+	Use:                   "unlink [command] [...command...] [...command...]",
+	Short:                 "Unlink a tool of fzf-creds",
+	Long:                  `Remove a linked tool from the local fzf-creds database and remove its alias`,
+	DisableFlagsInUseLine: true,
 	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) != 1 {
-			fmt.Println("Bad number of arguments, got : ", len(args), ", expected : 1")
-			cmd.Help()
-			return
-		}
-		command := args[0]
+		var toolsList []string
 		var tools models.Tools
-		result := database.DB.First(&tools, "name = ?", command)
-		if result.Error != nil {
-			if result.RowsAffected != 0 {
-				log.Fatal(result.Error)
+		for _, arg := range args {
+			_, err := exec.LookPath(arg)
+			if err == nil {
+				toolsList = append(toolsList, arg)
 			}
 		}
-
-		if result.RowsAffected == 0 {
-			fmt.Println("The tool is not linked with fzf-creds (not in the database)")
-			// TODO: check anyway the aliases for the delete
-			return
+		for _, tool := range toolsList {
+			result := database.DB.First(&tools, "name = ?", tool)
+			if result.Error != nil {
+				if result.RowsAffected != 0 {
+					log.Fatal(result.Error)
+				}
+			}
+			template := utils.GetAliasTemplate(tool)
+			ret := utils.CheckExistingStringOnFile(config.Aliases_file_path, template)
+			if ret {
+				utils.RemoveLineFromFile(config.Aliases_file_path, template)
+				fmt.Println(tool, "has been successfully unlinked")
+				result = database.DB.Delete(&tools, "name = ?", tool)
+				if result.Error != nil {
+					log.Fatal(result.Error)
+				}
+				continue
+			}
 		}
-
-		result = database.DB.Delete(&tools, "name = ?", command)
-		if result.Error != nil {
-			log.Fatal(result.Error)
-		}
-
-		fmt.Println("The " + command + " tool has been successfully unlinked from fzf-creds")
-
-		template := "alias " + command + "='fzf-creds smart " + command + "'"
-		utils.RemoveLineFromFile(Config.Aliases_file_path, template)
-		fmt.Println("Remember to use the following command or open a new terminal : unalias", command)
+		fmt.Println("Remember to use the following command or open a new terminal : unalias {toolName}")
 	},
 }
 
