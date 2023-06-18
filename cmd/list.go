@@ -7,6 +7,7 @@ import (
 
 	"github.com/QU35T-code/fzf-creds/database"
 	"github.com/QU35T-code/fzf-creds/models"
+	"github.com/QU35T-code/fzf-creds/utils"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/spf13/cobra"
 )
@@ -24,9 +25,14 @@ var listCmd = &cobra.Command{
 		}
 		t := table.NewWriter()
 		t.SetOutputMirror(os.Stdout)
-		t.AppendHeader(table.Row{"Tool"})
+		t.AppendHeader(table.Row{"Tool", "Alias"})
 		for _, tool := range tools {
-			t.AppendRows([]table.Row{{tool.Name}})
+			template := "alias " + tool.Name + "='fzf-creds smart " + tool.Name + "'"
+			ret := utils.CheckExistingStringOnFile(Config.Aliases_file_path, template)
+			if ret {
+				t.AppendRows([]table.Row{{tool.Name, template}})
+				continue
+			}
 		}
 		t.AppendSeparator()
 		t.Render()

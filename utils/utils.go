@@ -87,3 +87,23 @@ func AppendToFile(filename string, command string) {
 		log.Fatal(err)
 	}
 }
+
+func CheckExistingStringOnFile(filePath string, comparedString string) bool {
+	file, err := os.Open(filePath)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+		if strings.Contains(line, comparedString) {
+			return true
+		}
+	}
+	if err := scanner.Err(); err != nil {
+		log.Fatal(err)
+	}
+	return false
+}

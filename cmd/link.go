@@ -36,8 +36,14 @@ var linkCmd = &cobra.Command{
 		}
 
 		if result.RowsAffected != 0 {
-			fmt.Println("The tool is already linked to fzf-creds")
-			// TODO: check the aliases anyway to add it if it is not there
+			template := "alias " + command + "='fzf-creds smart " + command + "'"
+			ret := utils.CheckExistingStringOnFile(Config.Aliases_file_path, template)
+			if ret {
+				fmt.Println("The tool is already linked")
+				return
+			}
+			utils.AppendToFile(Config.Aliases_file_path, command)
+			fmt.Println("The tool has been successfully added to the aliases file")
 			return
 		}
 
