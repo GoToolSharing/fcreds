@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/QU35T-code/fzf-creds/config"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/spf13/cobra"
 )
@@ -17,10 +18,10 @@ var optionsCmd = &cobra.Command{
 		t := table.NewWriter()
 		t.SetOutputMirror(os.Stdout)
 		t.AppendHeader(table.Row{"Variable", "Description"})
-		t.AppendRows([]table.Row{{Config.Variables_prefix + "DOMAIN", "The target domain"}})
-		t.AppendRows([]table.Row{{Config.Variables_prefix + "USERNAME", "The target user"}})
-		t.AppendRows([]table.Row{{Config.Variables_prefix + "PASSWORD", "The target password"}})
-		t.AppendRows([]table.Row{{Config.Variables_prefix + "TARGET", "The target IP"}})
+		t.AppendRows([]table.Row{{config.Prefix + "DOMAIN", "The target domain"}})
+		t.AppendRows([]table.Row{{config.Prefix + "USERNAME", "The target user"}})
+		t.AppendRows([]table.Row{{config.Prefix + "PASSWORD", "The target password"}})
+		t.AppendRows([]table.Row{{config.Prefix + "TARGET", "The target IP"}})
 		t.AppendSeparator()
 		t.Render()
 	},

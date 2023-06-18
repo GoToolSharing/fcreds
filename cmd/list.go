@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/QU35T-code/fzf-creds/config"
 	"github.com/QU35T-code/fzf-creds/database"
 	"github.com/QU35T-code/fzf-creds/models"
 	"github.com/QU35T-code/fzf-creds/utils"
@@ -27,8 +28,8 @@ var listCmd = &cobra.Command{
 		t.SetOutputMirror(os.Stdout)
 		t.AppendHeader(table.Row{"Tool", "Alias"})
 		for _, tool := range tools {
-			template := "alias " + tool.Name + "='fzf-creds smart " + tool.Name + "'"
-			ret := utils.CheckExistingStringOnFile(Config.Aliases_file_path, template)
+			template := utils.GetAliasTemplate(tool.Name)
+			ret := utils.CheckExistingStringOnFile(config.Aliases_file_path, template)
 			if ret {
 				t.AppendRows([]table.Row{{tool.Name, template}})
 				continue

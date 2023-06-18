@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/QU35T-code/fzf-creds/config"
 	"github.com/QU35T-code/fzf-creds/database"
 	"github.com/QU35T-code/fzf-creds/models"
 	"github.com/QU35T-code/fzf-creds/utils"
@@ -30,8 +31,13 @@ var unlinkCmd = &cobra.Command{
 		}
 
 		if result.RowsAffected == 0 {
-			fmt.Println("The tool is not linked with fzf-creds (not in the database)")
-			// TODO: check anyway the aliases for the delete
+			template := utils.GetAliasTemplate(command)
+			ret := utils.CheckExistingStringOnFile(config.Aliases_file_path, template)
+			if ret {
+				utils.RemoveLineFromFile(config.Aliases_file_path, template)
+				fmt.Println("The alias has been successfully removed from the file")
+				return
+			}
 			return
 		}
 
@@ -42,8 +48,8 @@ var unlinkCmd = &cobra.Command{
 
 		fmt.Println("The " + command + " tool has been successfully unlinked from fzf-creds")
 
-		template := "alias " + command + "='fzf-creds smart " + command + "'"
-		utils.RemoveLineFromFile(Config.Aliases_file_path, template)
+		template := utils.GetAliasTemplate(command)
+		utils.RemoveLineFromFile(config.Aliases_file_path, template)
 		fmt.Println("Remember to use the following command or open a new terminal : unalias", command)
 	},
 }

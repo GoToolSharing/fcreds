@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/QU35T-code/fzf-creds/config"
 	"github.com/QU35T-code/fzf-creds/crackmapexec"
 	"github.com/spf13/cobra"
 )
@@ -17,22 +18,22 @@ var smartCmd = &cobra.Command{
 	Long:  `The wrapper that allows you to dynamically select variable values`,
 	Run: func(cmd *cobra.Command, args []string) {
 		mapping := map[string]func(){
-			Config.Variables_prefix + "DOMAIN":   crackmapexec.GetDomains,
-			Config.Variables_prefix + "USERNAME": crackmapexec.GetUsernames,
-			Config.Variables_prefix + "PASSWORD": crackmapexec.GetPasswords,
-			Config.Variables_prefix + "TARGET":   crackmapexec.GetTargets,
+			config.Prefix + "DOMAIN":   crackmapexec.GetDomains,
+			config.Prefix + "USERNAME": crackmapexec.GetUsernames,
+			config.Prefix + "PASSWORD": crackmapexec.GetPasswords,
+			config.Prefix + "TARGET":   crackmapexec.GetTargets,
 		}
 		templated_command := strings.Join(args[1:], "")
 		templated_command = args[0] + " " + templated_command
-		for _, variable := range Config.Variables_custom_list {
-			if strings.Contains(Config.Variables_prefix+templated_command, variable) {
-				mapping[Config.Variables_prefix+variable]()
+		for _, variable := range config.Variables_custom_list {
+			if strings.Contains(config.Prefix+templated_command, variable) {
+				mapping[config.Prefix+variable]()
 			}
 		}
-		commandToExecute := strings.ReplaceAll(templated_command, Config.Variables_prefix+"DOMAIN", strings.ReplaceAll(crackmapexec.GetData().Domain, "\n", ""))
-		commandToExecute = strings.ReplaceAll(commandToExecute, Config.Variables_prefix+"USERNAME", strings.ReplaceAll(crackmapexec.GetData().Username, "\n", ""))
-		commandToExecute = strings.ReplaceAll(commandToExecute, Config.Variables_prefix+"PASSWORD", strings.ReplaceAll(crackmapexec.GetData().Password, "\n", ""))
-		commandToExecute = strings.ReplaceAll(commandToExecute, Config.Variables_prefix+"TARGET", strings.ReplaceAll(crackmapexec.GetData().Target, "\n", ""))
+		commandToExecute := strings.ReplaceAll(templated_command, config.Prefix+"DOMAIN", strings.ReplaceAll(crackmapexec.GetData().Domain, "\n", ""))
+		commandToExecute = strings.ReplaceAll(commandToExecute, config.Prefix+"USERNAME", strings.ReplaceAll(crackmapexec.GetData().Username, "\n", ""))
+		commandToExecute = strings.ReplaceAll(commandToExecute, config.Prefix+"PASSWORD", strings.ReplaceAll(crackmapexec.GetData().Password, "\n", ""))
+		commandToExecute = strings.ReplaceAll(commandToExecute, config.Prefix+"TARGET", strings.ReplaceAll(crackmapexec.GetData().Target, "\n", ""))
 		fmt.Println(commandToExecute)
 		splited_command := strings.Split(commandToExecute, " ")
 		execMe := exec.Command(splited_command[0], splited_command[1:]...)

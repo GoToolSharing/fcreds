@@ -5,6 +5,7 @@ import (
 	"log"
 	"os/exec"
 
+	"github.com/QU35T-code/fzf-creds/config"
 	"github.com/QU35T-code/fzf-creds/database"
 	"github.com/QU35T-code/fzf-creds/models"
 	"github.com/QU35T-code/fzf-creds/utils"
@@ -35,14 +36,14 @@ var linkCmd = &cobra.Command{
 			}
 		}
 
+		template := utils.GetAliasTemplate(command)
 		if result.RowsAffected != 0 {
-			template := "alias " + command + "='fzf-creds smart " + command + "'"
-			ret := utils.CheckExistingStringOnFile(Config.Aliases_file_path, template)
+			ret := utils.CheckExistingStringOnFile(config.Aliases_file_path, template)
 			if ret {
 				fmt.Println("The tool is already linked")
 				return
 			}
-			utils.AppendToFile(Config.Aliases_file_path, command)
+			utils.AppendToFile(config.Aliases_file_path, command)
 			fmt.Println("The tool has been successfully added to the aliases file")
 			return
 		}
@@ -51,10 +52,10 @@ var linkCmd = &cobra.Command{
 		if result.Error != nil {
 			log.Fatal(result.Error)
 		}
-		utils.AppendToFile(Config.Aliases_file_path, command)
+		utils.AppendToFile(config.Aliases_file_path, template)
 
 		fmt.Println("The tool has been successfully linked to fzf-creds")
-		fmt.Println("Don't forget to source the aliases file -> source " + Config.Aliases_file_path)
+		fmt.Println("Don't forget to source the aliases file -> source " + config.Aliases_file_path)
 	},
 }
 
