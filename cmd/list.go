@@ -14,9 +14,11 @@ import (
 )
 
 var listCmd = &cobra.Command{
-	Use:   "list",
-	Short: "Display a table of linked tools",
-	Long:  `Displays the list of tools that work with fzf-creds`,
+	Use:                   "list",
+	Short:                 "Display a table of linked tools",
+	Long:                  `Displays the list of tools that work with fzf-creds`,
+	DisableFlagsInUseLine: true,
+	Args:                  cobra.ExactValidArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Tools linked to fzf-creds")
 		var tools []models.Tools

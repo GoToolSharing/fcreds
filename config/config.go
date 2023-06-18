@@ -13,6 +13,7 @@ var Cme_db_path = os.ExpandEnv("$HOME/.cme/workspaces/default")
 var Prefix = "%"
 var Variables_custom_list = []string{"DOMAIN", "USERNAME", "PASSWORD", "TARGET"}
 var Aliases_file_path = os.ExpandEnv("$HOME/.fzf-creds/aliases")
+var Completion_file_path = os.ExpandEnv("$HOME/.fzf-creds/autocompletion")
 
 func createDefaultDirectory() {
 	err := os.MkdirAll(Workspace_path, 0755)

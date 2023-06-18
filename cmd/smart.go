@@ -13,9 +13,10 @@ import (
 )
 
 var smartCmd = &cobra.Command{
-	Use:   "smart",
-	Short: "fzf-creds wrapper",
-	Long:  `The wrapper that allows you to dynamically select variable values`,
+	Use:                   "smart [command]",
+	Short:                 "fzf-creds wrapper",
+	Long:                  `The wrapper that allows you to dynamically select variable values`,
+	DisableFlagsInUseLine: true,
 	Run: func(cmd *cobra.Command, args []string) {
 		mapping := map[string]func(){
 			config.Prefix + "DOMAIN":   crackmapexec.GetDomains,

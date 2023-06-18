@@ -10,9 +10,11 @@ import (
 )
 
 var optionsCmd = &cobra.Command{
-	Use:   "options",
-	Short: "Displays the list of supported variables",
-	Long:  `In a table, displays the variables compatible with fzf-creds`,
+	Use:                   "options",
+	Short:                 "Displays the list of supported variables",
+	Long:                  `In a table, displays the variables compatible with fzf-creds`,
+	DisableFlagsInUseLine: true,
+	Args:                  cobra.ExactValidArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Compatible options")
 		t := table.NewWriter()

@@ -13,15 +13,12 @@ import (
 )
 
 var linkCmd = &cobra.Command{
-	Use:   "link",
-	Short: "Link a tool with fzf-creds",
-	Long:  `Link a tool in the fzf-creds database so that it can be used`,
+	Use:                   "link [command]",
+	Short:                 "Link a tool with fzf-creds",
+	Long:                  `Link a tool in the fzf-creds database so that it can be used`,
+	DisableFlagsInUseLine: true,
+	Args:                  cobra.ExactValidArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) != 1 {
-			fmt.Println("Bad number of arguments, got : ", len(args), ", expected : 1")
-			cmd.Help()
-			return
-		}
 		command := args[0]
 		_, err := exec.LookPath(command)
 		if err != nil {

@@ -11,9 +11,11 @@ import (
 )
 
 var resetCmd = &cobra.Command{
-	Use:   "reset",
-	Short: "Resetting fzf-creds",
-	Long:  `Removal of the local database and the working directory of the tool`,
+	Use:                   "reset",
+	Short:                 "Resetting fzf-creds",
+	Long:                  `Removal of the local database and the working directory of the tool`,
+	DisableFlagsInUseLine: true,
+	Args:                  cobra.ExactValidArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
 		err := os.RemoveAll(config.Workspace_path)
 		if err != nil {

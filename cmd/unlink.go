@@ -12,15 +12,12 @@ import (
 )
 
 var unlinkCmd = &cobra.Command{
-	Use:   "unlink",
-	Short: "Unlink a tool of fzf-creds",
-	Long:  `Remove a linked tool from the local fzf-creds database and remove its alias`,
+	Use:                   "unlink [command]",
+	Short:                 "Unlink a tool of fzf-creds",
+	Long:                  `Remove a linked tool from the local fzf-creds database and remove its alias`,
+	DisableFlagsInUseLine: true,
+	Args:                  cobra.ExactValidArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) != 1 {
-			fmt.Println("Bad number of arguments, got : ", len(args), ", expected : 1")
-			cmd.Help()
-			return
-		}
 		command := args[0]
 		var tools models.Tools
 		result := database.DB.First(&tools, "name = ?", command)
