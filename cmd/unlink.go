@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"log"
+	"os/exec"
 
 	"github.com/QU35T-code/fzf-creds/config"
 	"github.com/QU35T-code/fzf-creds/database"
@@ -12,42 +13,39 @@ import (
 )
 
 var unlinkCmd = &cobra.Command{
-	Use:                   "unlink [command]",
+	Use:                   "unlink [command] [...command...] [...command...]",
 	Short:                 "Unlink a tool of fzf-creds",
 	Long:                  `Remove a linked tool from the local fzf-creds database and remove its alias`,
 	DisableFlagsInUseLine: true,
-	Args:                  cobra.ExactValidArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		command := args[0]
+		var toolsList []string
 		var tools models.Tools
-		result := database.DB.First(&tools, "name = ?", command)
-		if result.Error != nil {
-			if result.RowsAffected != 0 {
-				log.Fatal(result.Error)
+		for _, arg := range args {
+			_, err := exec.LookPath(arg)
+			if err == nil {
+				toolsList = append(toolsList, arg)
 			}
 		}
-
-		if result.RowsAffected == 0 {
-			template := utils.GetAliasTemplate(command)
+		for _, tool := range toolsList {
+			result := database.DB.First(&tools, "name = ?", tool)
+			if result.Error != nil {
+				if result.RowsAffected != 0 {
+					log.Fatal(result.Error)
+				}
+			}
+			template := utils.GetAliasTemplate(tool)
 			ret := utils.CheckExistingStringOnFile(config.Aliases_file_path, template)
 			if ret {
 				utils.RemoveLineFromFile(config.Aliases_file_path, template)
-				fmt.Println("The alias has been successfully removed from the file")
-				return
+				fmt.Println(tool, "has been successfully unlinked")
+				result = database.DB.Delete(&tools, "name = ?", tool)
+				if result.Error != nil {
+					log.Fatal(result.Error)
+				}
+				continue
 			}
-			return
 		}
-
-		result = database.DB.Delete(&tools, "name = ?", command)
-		if result.Error != nil {
-			log.Fatal(result.Error)
-		}
-
-		fmt.Println("The " + command + " tool has been successfully unlinked from fzf-creds")
-
-		template := utils.GetAliasTemplate(command)
-		utils.RemoveLineFromFile(config.Aliases_file_path, template)
-		fmt.Println("Remember to use the following command or open a new terminal : unalias", command)
+		fmt.Println("Remember to use the following command or open a new terminal : unalias {toolName}")
 	},
 }
 
