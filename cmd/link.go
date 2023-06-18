@@ -13,45 +13,47 @@ import (
 )
 
 var linkCmd = &cobra.Command{
-	Use:                   "link [command]",
+	Use:                   "link [command] [...command...] [...command...]",
 	Short:                 "Link a tool with fzf-creds",
 	Long:                  `Link a tool in the fzf-creds database so that it can be used`,
 	DisableFlagsInUseLine: true,
-	Args:                  cobra.ExactValidArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		command := args[0]
-		_, err := exec.LookPath(command)
-		if err != nil {
-			fmt.Printf("%s", err)
-			return
-		}
+		var toolsList []string
 		var tools models.Tools
-		result := database.DB.First(&tools, "name = ?", command)
-		if result.Error != nil {
-			if result.RowsAffected != 0 {
-				log.Fatal(result.Error)
+		for _, arg := range args {
+			_, err := exec.LookPath(arg)
+			if err == nil {
+				toolsList = append(toolsList, arg)
 			}
 		}
+		for _, tool := range toolsList {
+			result := database.DB.First(&tools, "name = ?", tool)
+			if result.Error != nil {
+				if result.RowsAffected != 0 {
+					log.Fatal(result.Error)
+				}
+			}
 
-		template := utils.GetAliasTemplate(command)
-		if result.RowsAffected != 0 {
+			template := utils.GetAliasTemplate(tool)
 			ret := utils.CheckExistingStringOnFile(config.Aliases_file_path, template)
 			if ret {
-				fmt.Println("The tool is already linked")
-				return
+				fmt.Println(tool, "is already linked")
+				continue
 			}
-			utils.AppendToFile(config.Aliases_file_path, command)
-			fmt.Println("The tool has been successfully added to the aliases file")
-			return
-		}
+			if result.RowsAffected != 0 {
+				utils.AppendToFile(config.Aliases_file_path, tool)
+				fmt.Println(tool, "has been successfully added to the aliases file")
+				continue
+			}
 
-		result = database.DB.Create(&models.Tools{Name: command})
-		if result.Error != nil {
-			log.Fatal(result.Error)
-		}
-		utils.AppendToFile(config.Aliases_file_path, template)
+			result = database.DB.Create(&models.Tools{Name: tool})
+			if result.Error != nil {
+				log.Fatal(result.Error)
+			}
+			utils.AppendToFile(config.Aliases_file_path, template)
 
-		fmt.Println("The tool has been successfully linked to fzf-creds")
+			fmt.Println(tool, "has been successfully linked to fzf-creds")
+		}
 		fmt.Println("Don't forget to source the aliases file -> source " + config.Aliases_file_path)
 	},
 }
