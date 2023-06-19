@@ -24,6 +24,7 @@ var optionsCmd = &cobra.Command{
 		t.AppendRows([]table.Row{{config.Prefix + "USERNAME", "The target user"}})
 		t.AppendRows([]table.Row{{config.Prefix + "PASSWORD", "The target password"}})
 		t.AppendRows([]table.Row{{config.Prefix + "TARGET", "The target IP"}})
+		t.AppendRows([]table.Row{{config.Prefix + "HASH", "The target NT HASH"}})
 		t.AppendSeparator()
 		t.Render()
 	},

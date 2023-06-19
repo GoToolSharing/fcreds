@@ -23,6 +23,7 @@ var smartCmd = &cobra.Command{
 			config.Prefix + "USERNAME": crackmapexec.GetUsernames,
 			config.Prefix + "PASSWORD": crackmapexec.GetPasswords,
 			config.Prefix + "TARGET":   crackmapexec.GetTargets,
+			config.Prefix + "HASH":     crackmapexec.GetHashes,
 		}
 		templated_command := strings.Join(args[1:], " ")
 		templated_command = args[0] + " " + templated_command
@@ -35,6 +36,7 @@ var smartCmd = &cobra.Command{
 		commandToExecute = strings.ReplaceAll(commandToExecute, config.Prefix+"USERNAME", strings.ReplaceAll(crackmapexec.GetData().Username, "\n", ""))
 		commandToExecute = strings.ReplaceAll(commandToExecute, config.Prefix+"PASSWORD", strings.ReplaceAll(crackmapexec.GetData().Password, "\n", ""))
 		commandToExecute = strings.ReplaceAll(commandToExecute, config.Prefix+"TARGET", strings.ReplaceAll(crackmapexec.GetData().Target, "\n", ""))
+		commandToExecute = strings.ReplaceAll(commandToExecute, config.Prefix+"HASH", strings.ReplaceAll(crackmapexec.GetData().Hash, "\n", ""))
 		fmt.Println(commandToExecute)
 		splited_command := strings.Split(commandToExecute, " ")
 		execMe := exec.Command(splited_command[0], splited_command[1:]...)

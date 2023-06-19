@@ -11,7 +11,7 @@ var Workspace_path = os.ExpandEnv("$HOME/.fzf-creds")
 var Local_db_name = "fzf-creds.db"
 var Cme_db_path = os.ExpandEnv("$HOME/.cme/workspaces/default")
 var Prefix = "%"
-var Variables_custom_list = []string{"DOMAIN", "USERNAME", "PASSWORD", "TARGET"}
+var Variables_custom_list = []string{"DOMAIN", "USERNAME", "PASSWORD", "TARGET", "HASH"}
 var Aliases_file_path = os.ExpandEnv("$HOME/.fzf-creds/aliases")
 var Completion_file_path = os.ExpandEnv("$HOME/.fzf-creds/autocompletion")
 

@@ -29,9 +29,10 @@ type ComputedData struct {
 	Username string
 	Password string
 	Target   string
+	Hash     string
 }
 
-func getDataFromDatabases(search string, cmeInterface CrackmapexecInterface) []string {
+func getDataFromDatabases(search string, cmeInterface CrackmapexecInterface, where_clause string) []string {
 	dbFiles, err := filepath.Glob(filepath.Join(config.Cme_db_path, "*.db"))
 	if err != nil {
 		log.Fatal(err)
@@ -50,7 +51,7 @@ func getDataFromDatabases(search string, cmeInterface CrackmapexecInterface) []s
 		}
 
 		var data []string
-		result := db.Model(cmeInterface).Select("DISTINCT " + search).Find(&data)
+		result := db.Model(cmeInterface).Select("DISTINCT " + search).Where(where_clause).Find(&data)
 		if result.Error != nil {
 			continue
 		}
@@ -99,7 +100,7 @@ func GetData() ComputedData {
 
 func GetDomains() {
 	users := &Users{}
-	domainsList := getDataFromDatabases("domain", users)
+	domainsList := getDataFromDatabases("domain", users, "")
 	if domainsList == nil {
 		return
 	}
@@ -109,7 +110,7 @@ func GetDomains() {
 
 func GetUsernames() {
 	usernames := &Users{}
-	usernamesList := getDataFromDatabases("username", usernames)
+	usernamesList := getDataFromDatabases("username", usernames, "")
 	if usernamesList == nil {
 		return
 	}
@@ -119,7 +120,7 @@ func GetUsernames() {
 
 func GetPasswords() {
 	passwords := &Users{}
-	passwordsList := getDataFromDatabases("password", passwords)
+	passwordsList := getDataFromDatabases("password", passwords, "")
 	if passwordsList == nil {
 		return
 	}
@@ -129,10 +130,20 @@ func GetPasswords() {
 
 func GetTargets() {
 	targets := &Computers{}
-	targetsList := getDataFromDatabases("ip", targets)
+	targetsList := getDataFromDatabases("ip", targets, "")
 	if targetsList == nil {
 		return
 	}
 	target_selection := askToFZF(targetsList, "Targets")
 	computedData.Target = target_selection
+}
+
+func GetHashes() {
+	hashes := &Users{}
+	hashesList := getDataFromDatabases("password", hashes, "credtype='hash'")
+	if hashesList == nil {
+		return
+	}
+	hash_selection := askToFZF(hashesList, "Hashes")
+	computedData.Hash = hash_selection
 }
