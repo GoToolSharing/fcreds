@@ -120,7 +120,7 @@ func GetUsernames() {
 
 func GetPasswords() {
 	passwords := &Users{}
-	passwordsList := getDataFromDatabases("password", passwords, "")
+	passwordsList := getDataFromDatabases("password", passwords, "credtype='plaintext'")
 	if passwordsList == nil {
 		return
 	}
