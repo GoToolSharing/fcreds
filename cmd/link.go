@@ -25,6 +25,9 @@ var linkCmd = &cobra.Command{
 		for _, arg := range args {
 			ret := utils.CheckIsFile(arg)
 			if ret {
+				if verbose {
+					fmt.Println("[DEBUG][FILE] - Detected :", arg)
+				}
 				file, err := os.Open(arg)
 				if err != nil {
 					log.Fatal(err)
@@ -34,8 +37,14 @@ var linkCmd = &cobra.Command{
 				scanner := bufio.NewScanner(file)
 				for scanner.Scan() {
 					tool := scanner.Text()
+					if verbose {
+						fmt.Println("[DEBUG][FILE] - Line :", tool)
+					}
 					_, err := exec.LookPath(tool)
 					if err == nil {
+						if verbose {
+							fmt.Println("[DEBUG][FILE] - Append :", tool)
+						}
 						toolsList = append(toolsList, tool)
 					}
 				}
@@ -47,6 +56,9 @@ var linkCmd = &cobra.Command{
 
 			_, err := exec.LookPath(arg)
 			if err == nil {
+				if verbose {
+					fmt.Println("[DEBUG][TOOL] - Append :", arg)
+				}
 				toolsList = append(toolsList, arg)
 			}
 		}

@@ -10,6 +10,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var verbose bool
+
 var rootCmd = &cobra.Command{
 	Use:  "fzf-creds",
 	Long: `Interactive execution of bash commands`,
@@ -30,4 +32,5 @@ func Execute() {
 
 func init() {
 	rootCmd.CompletionOptions.DisableDefaultCmd = true
+	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Verbose mode")
 }
