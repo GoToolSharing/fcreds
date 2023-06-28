@@ -19,7 +19,7 @@ type CrackmapexecInterface interface {
 type Users struct {
 }
 
-type Computers struct {
+type Hosts struct {
 }
 
 var computedData ComputedData
@@ -129,7 +129,7 @@ func GetPasswords() {
 }
 
 func GetTargets() {
-	targets := &Computers{}
+	targets := &Hosts{}
 	targetsList := getDataFromDatabases("ip", targets, "")
 	if targetsList == nil {
 		return
