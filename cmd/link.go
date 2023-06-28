@@ -1,8 +1,10 @@
 package cmd
 
 import (
+	"bufio"
 	"fmt"
 	"log"
+	"os"
 	"os/exec"
 
 	"github.com/QU35T-code/fzf-creds/config"
@@ -21,10 +23,36 @@ var linkCmd = &cobra.Command{
 		var toolsList []string
 		var tools models.Tools
 		for _, arg := range args {
+			ret := utils.CheckIsFile(arg)
+			if ret {
+				file, err := os.Open(arg)
+				if err != nil {
+					log.Fatal(err)
+				}
+				defer file.Close()
+
+				scanner := bufio.NewScanner(file)
+				for scanner.Scan() {
+					tool := scanner.Text()
+					_, err := exec.LookPath(tool)
+					if err == nil {
+						toolsList = append(toolsList, tool)
+					}
+				}
+				if err := scanner.Err(); err != nil {
+					log.Fatal(err)
+				}
+				continue
+			}
+
 			_, err := exec.LookPath(arg)
 			if err == nil {
 				toolsList = append(toolsList, arg)
 			}
+		}
+		if toolsList == nil {
+			fmt.Println("No valid tool was specified")
+			return
 		}
 		for _, tool := range toolsList {
 			result := database.DB.First(&tools, "name = ?", tool)
