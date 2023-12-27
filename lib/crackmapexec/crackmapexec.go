@@ -1,6 +1,7 @@
 package crackmapexec
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"os/exec"
@@ -33,7 +34,7 @@ type ComputedData struct {
 }
 
 func getDataFromDatabases(search string, cmeInterface CrackmapexecInterface, where_clause string) []string {
-	dbFiles, err := filepath.Glob(filepath.Join(config.Cme_db_path, "*.db"))
+	dbFiles, err := filepath.Glob(filepath.Join(config.NetexecDBPath, "*.db"))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -99,6 +100,7 @@ func GetData() ComputedData {
 }
 
 func GetDomains() {
+	fmt.Println("Get Domains")
 	users := &Users{}
 	domainsList := getDataFromDatabases("domain", users, "")
 	if domainsList == nil {
@@ -109,6 +111,7 @@ func GetDomains() {
 }
 
 func GetUsernames() {
+	fmt.Println("Get Usernames")
 	usernames := &Users{}
 	usernamesList := getDataFromDatabases("username", usernames, "")
 	if usernamesList == nil {
@@ -119,6 +122,7 @@ func GetUsernames() {
 }
 
 func GetPasswords() {
+	fmt.Println("Get Passwords")
 	passwords := &Users{}
 	passwordsList := getDataFromDatabases("password", passwords, "credtype='plaintext'")
 	if passwordsList == nil {
@@ -129,6 +133,7 @@ func GetPasswords() {
 }
 
 func GetTargets() {
+	fmt.Println("Get Targets")
 	targets := &Hosts{}
 	targetsList := getDataFromDatabases("ip", targets, "")
 	if targetsList == nil {

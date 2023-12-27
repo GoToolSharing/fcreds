@@ -1,38 +1,25 @@
 package config
 
 import (
-	"log"
+	"fmt"
 	"os"
 
-	"github.com/QU35T-code/fzf-creds/utils"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
-var Workspace_path = os.ExpandEnv("$HOME/.fzf-creds")
-var Local_db_name = "fzf-creds.db"
-var Cme_db_path = os.ExpandEnv("$HOME/.cme/workspaces/default")
-var Prefix = "%"
-var Variables_custom_list = []string{"DOMAIN", "USERNAME", "PASSWORD", "TARGET", "HASH"}
-var Aliases_file_path = os.ExpandEnv("$HOME/.fzf-creds/aliases")
-var Completion_file_path = os.ExpandEnv("$HOME/.fzf-creds/autocompletion")
+var homeDir = os.Getenv("HOME")
+var WorkspacePath = os.ExpandEnv("$HOME/.local/fzf-creds")
+var LocalDbName = "fzf-creds.db"
+var NetexecDBPath = homeDir + "/.nxc/workspaces/default"
+var Prefix = "$"
+var VariablesCustomList = []string{"DOMAIN", "USERNAME", "PASSWORD", "TARGET", "HASH"}
+var GlobalConfig Settings
+var BaseDirectory = homeDir + "/.local/fzf-creds"
 
-func createDefaultDirectory() {
-	err := os.MkdirAll(Workspace_path, 0755)
-	if err != nil && !os.IsExist(err) {
-		log.Fatal(err)
-	}
-}
+const Version = "NotAGoodVersion"
 
-func createDefaultAliasesFile() {
-	if _, err := os.Stat(Aliases_file_path); os.IsNotExist(err) {
-		if file, err := os.Create(Aliases_file_path); err == nil {
-			defer file.Close()
-		} else {
-			log.Fatal(err)
-		}
-	} else if err != nil {
-		log.Fatal(err)
-	}
-}
+var CompletionFilePath = WorkspacePath + "/autocompletion"
 
 func GetRCFilePath() string {
 	shellMappings := map[string]string{
@@ -45,17 +32,51 @@ func GetRCFilePath() string {
 	return shellMappings[shell]
 }
 
-func linkToRcFile() {
-	RCFile := GetRCFilePath()
-	aliasTemplate := "source " + Aliases_file_path
-	ret := utils.CheckExistingStringOnFile(RCFile, aliasTemplate)
-	if !ret {
-		utils.AppendToFile(RCFile, aliasTemplate)
+func ConfigureLogger() error {
+	var logLevel zapcore.Level
+
+	switch GlobalConfig.Verbose {
+	case 0:
+		logLevel = zap.ErrorLevel
+	case 1:
+		logLevel = zap.InfoLevel
+	case 2:
+		logLevel = zap.DebugLevel
+	default:
+		logLevel = zap.DebugLevel
 	}
+
+	encoderConfig := zap.NewDevelopmentEncoderConfig()
+	encoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder // Ajoute des couleurs pour les niveaux de log
+
+	cfg := zap.Config{
+		Level:            zap.NewAtomicLevelAt(logLevel),
+		Development:      true,
+		Encoding:         "console",
+		EncoderConfig:    encoderConfig,
+		OutputPaths:      []string{"stdout"},
+		ErrorOutputPaths: []string{"stderr"},
+	}
+
+	var err error
+	GlobalConfig.Logger, err = cfg.Build()
+	if err != nil {
+		return fmt.Errorf("logger configuration error: %v", err)
+	}
+	zap.ReplaceGlobals(GlobalConfig.Logger)
+	return nil
 }
 
-func Init() {
-	createDefaultDirectory()
-	createDefaultAliasesFile()
-	linkToRcFile()
+// Init initializes the application by setting up necessary directories, creating a default configuration file if it doesn't exist, and loading the configuration.
+func Init() error {
+	if _, err := os.Stat(BaseDirectory); os.IsNotExist(err) {
+		GlobalConfig.Logger.Info(fmt.Sprintf("The \"%s\" folder does not exist, creation in progress...\n", BaseDirectory))
+		err := os.MkdirAll(BaseDirectory, os.ModePerm)
+		if err != nil {
+			return fmt.Errorf("error folder creation: %s", err)
+		}
+
+		GlobalConfig.Logger.Info(fmt.Sprintf("\"%s\" folder created successfully\n\n", BaseDirectory))
+	}
+	return nil
 }

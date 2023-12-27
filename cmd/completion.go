@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/QU35T-code/fzf-creds/config"
-	"github.com/QU35T-code/fzf-creds/utils"
+	"github.com/QU35T-code/fzf-creds/lib/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -19,18 +19,18 @@ var completionCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		switch os.Getenv("SHELL") {
 		case "/bin/bash":
-			cmd.Root().GenZshCompletionFile(config.Completion_file_path)
+			cmd.Root().GenZshCompletionFile(config.CompletionFilePath)
 		case "/bin/zsh":
-			cmd.Root().GenZshCompletionFile(config.Completion_file_path)
+			cmd.Root().GenZshCompletionFile(config.CompletionFilePath)
 		case "/bin/fish":
-			cmd.Root().GenZshCompletionFile(config.Completion_file_path)
+			cmd.Root().GenZshCompletionFile(config.CompletionFilePath)
 		}
-		template := "source " + config.Completion_file_path
+		template := "source " + config.CompletionFilePath
 		ret := utils.CheckExistingStringOnFile(config.GetRCFilePath(), template)
 		if !ret && args[0] == "enable" {
 			utils.AppendToFile(config.GetRCFilePath(), template)
 			fmt.Println("Completion has been successfully activated")
-			fmt.Println("Don't forget to source the completion file -> source " + config.Completion_file_path)
+			fmt.Println("Don't forget to source the completion file -> source " + config.CompletionFilePath)
 			return
 		} else if ret && args[0] == "disable" {
 			utils.RemoveLineFromFile(config.GetRCFilePath(), template)

@@ -80,13 +80,13 @@ func CheckExistingStringOnFile(filePath string, comparedString string) bool {
 	return false
 }
 
-func GetAliasTemplate(command string) string {
-	return "alias " + command + "='fzf-creds smart " + command + "'"
-}
+// func GetAliasTemplate(command string) string {
+// 	return "alias " + command + "='fzf-creds smart " + command + "'"
+// }
 
-func CheckIsFile(filename string) bool {
-	if _, err := os.Stat(filename); err == nil {
-		return true
-	}
-	return false
-}
+// func CheckIsFile(filename string) bool {
+// 	if _, err := os.Stat(filename); err == nil {
+// 		return true
+// 	}
+// 	return false
+// }
